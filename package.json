@@ -6,10 +6,16 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "@types/graphql": "^14.5.0",
     "@types/jest": "^26.0.15",
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
+    "apollo": "^2.33.6",
+    "@apollo/client": "3.4.16",
+    "graphql": "^15.7.0",
+    "graphql-tag": "^2.12.5",
+    "prettier": "^2.4.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
@@ -20,7 +26,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "precodegen-typescript": "rimraf \"**/__generated__\"",
+    "codegen-typescript": "apollo client:codegen __generated__ --localSchemaFile=schema.json --target=typescript --addTypename -tagName=gql --passthroughCustomScalars --globalTypesFile=src/__generated__/globalTypes.ts --includes=**/*.gql.ts* && prettier --write **/__generated__/**/*.ts"
   },
   "eslintConfig": {
     "extends": [
