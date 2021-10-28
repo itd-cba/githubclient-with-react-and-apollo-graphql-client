@@ -28,7 +28,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "precodegen-typescript": "rimraf \"**/__generated__\"",
-    "codegen-typescript": "apollo client:codegen __generated__ --localSchemaFile=schema.json --target=typescript --addTypename -tagName=gql --passthroughCustomScalars --globalTypesFile=src/__generated__/globalTypes.ts --includes=**/*.gql.ts* && prettier --write **/__generated__/**/*.ts"
+    "codegen-typescript": "apollo client:codegen __generated__ --localSchemaFile=schema.json --target=typescript --addTypename --tagName=gql && prettier --write **/__generated__/**/*.ts"
   },
   "eslintConfig": {
     "extends": [
