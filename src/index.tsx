@@ -9,7 +9,6 @@ import {
 } from "@apollo/client";
 import App from "./App";
 import { onError } from "@apollo/client/link/error";
-import { RetryLink } from "@apollo/client/link/retry";
 
 const GITHUB_BASE_URL = "https://api.github.com/graphql";
 

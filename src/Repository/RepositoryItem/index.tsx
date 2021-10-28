@@ -1,11 +1,83 @@
 import Link from "../../Link";
 import { GetRepositoriesOfCurrentUser_viewer_repositories_edges_node } from "../../Profile/__generated__/GetRepositoriesOfCurrentUser";
 import "../style.css";
+import gql from "graphql-tag";
+import { useMutation, useQuery } from "@apollo/client";
+import {
+  StarRepository,
+  StarRepositoryVariables,
+} from "./__generated__/StarRepository";
+import Button from "../../Button";
+import {
+  UpdateSubscription,
+  UpdateSubscriptionVariables,
+} from "./__generated__/UpdateSubscription";
+import { SubscriptionState } from "../../__generated__/globalTypes";
+import { pipeline } from "stream";
+import { GetRepo, GetRepoVariables } from "./__generated__/GetRepo";
 
 interface Props
   extends GetRepositoriesOfCurrentUser_viewer_repositories_edges_node {}
 
+const STAR_REPOSITORY = gql`
+  mutation StarRepository($id: ID!) {
+    addStar(input: { starrableId: $id }) {
+      starrable {
+        __typename
+        id
+        viewerHasStarred
+        __typename
+        stargazers {
+          totalCount
+        }
+      }
+    }
+  }
+`;
+
+const REMOVE_STAR_REPOSITORY = gql`
+  mutation RemoveStarRepository($id: ID!) {
+    removeStar(input: { starrableId: $id }) {
+      starrable {
+        __typename
+        id
+        viewerHasStarred
+        stargazers {
+          __typename
+          totalCount
+        }
+      }
+    }
+  }
+`;
+
+const UPDATE_SUBSCRIPTION = gql`
+  mutation UpdateSubscription($id: ID!, $state: SubscriptionState!) {
+    updateSubscription(input: { subscribableId: $id, state: $state }) {
+      subscribable {
+        __typename
+        id
+        viewerSubscription
+      }
+    }
+  }
+`;
+
+const GET_REPOSITORY = gql`
+  query GetRepo($owner: String!, $reponame: String!) {
+    repository(name: $reponame, owner: $owner) {
+      __typename
+      id
+      watchers {
+        __typename
+        totalCount
+      }
+    }
+  }
+`;
+
 const RepositoryItem = ({
+  id,
   name,
   url,
   descriptionHTML,
@@ -16,6 +88,39 @@ const RepositoryItem = ({
   viewerSubscription,
   viewerHasStarred,
 }: Props) => {
+  const [addStar, { data, loading, error }] = useMutation<
+    StarRepository,
+    StarRepositoryVariables
+  >(STAR_REPOSITORY, {
+    variables: { id },
+  });
+
+  const [removeStar] = useMutation<StarRepository, StarRepositoryVariables>(
+    REMOVE_STAR_REPOSITORY,
+    {
+      variables: { id },
+    }
+  );
+
+  const [updateSubscription] = useMutation<
+    UpdateSubscription,
+    UpdateSubscriptionVariables
+  >(UPDATE_SUBSCRIPTION, {
+    variables: {
+      id,
+      state:
+        viewerSubscription === SubscriptionState.UNSUBSCRIBED
+          ? SubscriptionState.SUBSCRIBED
+          : SubscriptionState.UNSUBSCRIBED,
+    },
+    refetchQueries: [
+      {
+        query: GET_REPOSITORY,
+        variables: { owner: owner.login, reponame: name },
+      },
+    ],
+  });
+
   return (
     <div>
       <div className="RepositoryItem-title">
@@ -23,8 +128,25 @@ const RepositoryItem = ({
           <Link href={url}>{name}</Link>
         </h2>
 
-        <div className={"RepositoryItem-title-action"}>
-          {stargazers.totalCount} Stars
+        <div>
+          {!viewerHasStarred ? (
+            <Button className={"RepositoryItem-title-action"} onClick={addStar}>
+              {stargazers.totalCount} Stars
+            </Button>
+          ) : (
+            <Button
+              className={"RepositoryItem-title-action"}
+              onClick={removeStar}
+            >
+              {stargazers.totalCount} Stars
+            </Button>
+          )}
+          <Button
+            className={"RepositoryItem-title-action"}
+            onClick={updateSubscription}
+          >
+            {watchers.totalCount} Watchers
+          </Button>
         </div>
       </div>
 
