@@ -1,2 +1,5 @@
-// eslint-disable-next-line import/no-anonymous-default-export
-export default {};
+import RepositoryList from "./RepositoryList";
+import REPOSITORY_FRAGMENT from "./fragments";
+
+export { REPOSITORY_FRAGMENT };
+export default RepositoryList;

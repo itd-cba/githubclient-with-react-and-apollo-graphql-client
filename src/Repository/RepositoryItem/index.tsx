@@ -2,7 +2,7 @@ import Link from "../../Link";
 import { GetRepositoriesOfCurrentUser_viewer_repositories_edges_node } from "../../Profile/__generated__/GetRepositoriesOfCurrentUser";
 import "../style.css";
 import gql from "graphql-tag";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import {
   StarRepository,
   StarRepositoryVariables,
@@ -13,8 +13,6 @@ import {
   UpdateSubscriptionVariables,
 } from "./__generated__/UpdateSubscription";
 import { SubscriptionState } from "../../__generated__/globalTypes";
-import { pipeline } from "stream";
-import { GetRepo, GetRepoVariables } from "./__generated__/GetRepo";
 
 interface Props
   extends GetRepositoriesOfCurrentUser_viewer_repositories_edges_node {}
@@ -113,12 +111,6 @@ const RepositoryItem = ({
           ? SubscriptionState.SUBSCRIBED
           : SubscriptionState.UNSUBSCRIBED,
     },
-    refetchQueries: [
-      {
-        query: GET_REPOSITORY,
-        variables: { owner: owner.login, reponame: name },
-      },
-    ],
   });
 
   return (

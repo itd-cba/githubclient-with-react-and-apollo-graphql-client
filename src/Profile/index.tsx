@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/client";
 
 import Loading from "../Loading";
 import { GetRepositoriesOfCurrentUser } from "./__generated__/GetRepositoriesOfCurrentUser";
-import RepositoryList from "../Repository/RepositoryList";
+import RepositoryList, { REPOSITORY_FRAGMENT } from "../Repository";
 import ErrorMessage from "../Error";
 
 const GET_REPOSITORIES_OF_CURRENT_USER = gql`
@@ -12,34 +12,13 @@ const GET_REPOSITORIES_OF_CURRENT_USER = gql`
       repositories(first: 5, orderBy: { direction: DESC, field: STARGAZERS }) {
         edges {
           node {
-            __typename
-            id
-            name
-            url
-            descriptionHTML
-            primaryLanguage {
-              name
-            }
-            owner {
-              __typename
-              login
-              url
-            }
-            stargazers {
-              __typename
-              totalCount
-            }
-            viewerHasStarred
-            watchers {
-              __typename
-              totalCount
-            }
-            viewerSubscription
+            ...repository
           }
         }
       }
     }
   }
+  ${REPOSITORY_FRAGMENT}
 `;
 
 const Profile = () => {
