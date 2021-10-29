@@ -2,7 +2,7 @@ import Link from "../../Link";
 import { GetRepositoriesOfCurrentUser_viewer_repositories_edges_node } from "../../Profile/__generated__/GetRepositoriesOfCurrentUser";
 import "../style.css";
 import gql from "graphql-tag";
-import { useMutation } from "@apollo/client";
+import { ApolloCache, useMutation } from "@apollo/client";
 import {
   StarRepository,
   StarRepositoryVariables,
@@ -13,6 +13,9 @@ import {
   UpdateSubscriptionVariables,
 } from "./__generated__/UpdateSubscription";
 import { SubscriptionState } from "../../__generated__/globalTypes";
+import REPOSITORY_FRAGMENT from "../fragments";
+import { Repository } from "../__generated__/Repository";
+import { RemoveStarRepository } from "./__generated__/RemoveStarRepository";
 
 interface Props
   extends GetRepositoriesOfCurrentUser_viewer_repositories_edges_node {}
@@ -24,10 +27,6 @@ const STAR_REPOSITORY = gql`
         __typename
         id
         viewerHasStarred
-        __typename
-        stargazers {
-          totalCount
-        }
       }
     }
   }
@@ -40,10 +39,6 @@ const REMOVE_STAR_REPOSITORY = gql`
         __typename
         id
         viewerHasStarred
-        stargazers {
-          __typename
-          totalCount
-        }
       }
     }
   }
@@ -61,18 +56,70 @@ const UPDATE_SUBSCRIPTION = gql`
   }
 `;
 
-const GET_REPOSITORY = gql`
-  query GetRepo($owner: String!, $reponame: String!) {
-    repository(name: $reponame, owner: $owner) {
-      __typename
-      id
-      watchers {
-        __typename
-        totalCount
-      }
+const updateStars = (
+  cache: ApolloCache<any>,
+  mutationResult: StarRepository | RemoveStarRepository,
+  id: string
+) => {
+  const cachedRepository = cache.readFragment<Repository>({
+    id: `Repository:${id}`,
+    fragment: REPOSITORY_FRAGMENT,
+  });
+  if (cachedRepository) {
+    const oldCount = cachedRepository.stargazers.totalCount;
+    let totalCount = oldCount;
+    if ("addStar" in mutationResult) {
+      totalCount = mutationResult.addStar?.starrable?.viewerHasStarred
+        ? oldCount + 1
+        : oldCount - 1;
+    } else if ("removeStar" in mutationResult) {
+      totalCount = mutationResult.removeStar?.starrable?.viewerHasStarred
+        ? oldCount + 1
+        : oldCount - 1;
     }
+    cache.writeFragment<Repository>({
+      id: `Repository:${id}`,
+      fragment: REPOSITORY_FRAGMENT,
+      data: {
+        ...cachedRepository,
+        stargazers: {
+          ...cachedRepository.stargazers,
+          totalCount,
+        },
+      },
+    });
   }
-`;
+};
+
+const updateWatchers = (
+  cache: ApolloCache<any>,
+  mutationResult: UpdateSubscription,
+  id: string
+) => {
+  const cachedRepository = cache.readFragment<Repository>({
+    id: `Repository:${id}`,
+    fragment: REPOSITORY_FRAGMENT,
+  });
+  if (cachedRepository) {
+    const oldCount = cachedRepository.watchers.totalCount;
+    let totalCount =
+      mutationResult.updateSubscription?.subscribable?.viewerSubscription ===
+      SubscriptionState.SUBSCRIBED
+        ? oldCount + 1
+        : oldCount - 1;
+    cache.writeFragment<Repository>({
+      id: `Repository:${id}`,
+      fragment: REPOSITORY_FRAGMENT,
+      data: {
+        ...cachedRepository,
+        watchers: {
+          ...cachedRepository.watchers,
+          totalCount,
+        },
+      },
+    });
+  }
+};
 
 const RepositoryItem = ({
   id,
@@ -91,12 +138,18 @@ const RepositoryItem = ({
     StarRepositoryVariables
   >(STAR_REPOSITORY, {
     variables: { id },
+    update(cache, { data }) {
+      if (data) updateStars(cache, data, id);
+    },
   });
 
   const [removeStar] = useMutation<StarRepository, StarRepositoryVariables>(
     REMOVE_STAR_REPOSITORY,
     {
       variables: { id },
+      update(cache, { data }) {
+        if (data) updateStars(cache, data, id);
+      },
     }
   );
 
@@ -110,6 +163,9 @@ const RepositoryItem = ({
         viewerSubscription === SubscriptionState.UNSUBSCRIBED
           ? SubscriptionState.SUBSCRIBED
           : SubscriptionState.UNSUBSCRIBED,
+    },
+    update(cache, { data }) {
+      if (data) updateWatchers(cache, data, id);
     },
   });
 

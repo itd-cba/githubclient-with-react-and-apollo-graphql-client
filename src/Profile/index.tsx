@@ -12,7 +12,7 @@ const GET_REPOSITORIES_OF_CURRENT_USER = gql`
       repositories(first: 5, orderBy: { direction: DESC, field: STARGAZERS }) {
         edges {
           node {
-            ...repository
+            ...Repository
           }
         }
       }

@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 const REPOSITORY_FRAGMENT = gql`
-  fragment repository on Repository {
+  fragment Repository on Repository {
     __typename
     id
     name
