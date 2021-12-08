@@ -1,5 +1,5 @@
 import "./style.css";
-import React, { ButtonHTMLAttributes } from "react";
+import React from "react";
 type Props = {
   className: string;
   color?: string;
@@ -24,4 +24,15 @@ const Button: React.FC<Props> = ({
   );
 };
 
+const ButtonUnobtrusive: React.FC<Props> = ({
+  children,
+  className,
+  type = "button",
+  ...props
+}) => (
+  <button className={`${className} Button_unobtrusive`} type={type} {...props}>
+    {children}
+  </button>
+);
+export { ButtonUnobtrusive };
 export default Button;

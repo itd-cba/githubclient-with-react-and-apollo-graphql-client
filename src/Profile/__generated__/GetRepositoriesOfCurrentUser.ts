@@ -94,6 +94,18 @@ export interface GetRepositoriesOfCurrentUser_viewer_repositories_edges {
   node: GetRepositoriesOfCurrentUser_viewer_repositories_edges_node | null;
 }
 
+export interface GetRepositoriesOfCurrentUser_viewer_repositories_pageInfo {
+  __typename: "PageInfo";
+  /**
+   * When paginating forwards, the cursor to continue.
+   */
+  endCursor: string | null;
+  /**
+   * When paginating forwards, are there more items?
+   */
+  hasNextPage: boolean;
+}
+
 export interface GetRepositoriesOfCurrentUser_viewer_repositories {
   __typename: "RepositoryConnection";
   /**
@@ -102,6 +114,10 @@ export interface GetRepositoriesOfCurrentUser_viewer_repositories {
   edges:
     | (GetRepositoriesOfCurrentUser_viewer_repositories_edges | null)[]
     | null;
+  /**
+   * Information to aid in pagination.
+   */
+  pageInfo: GetRepositoriesOfCurrentUser_viewer_repositories_pageInfo;
 }
 
 export interface GetRepositoriesOfCurrentUser_viewer {
@@ -117,4 +133,8 @@ export interface GetRepositoriesOfCurrentUser {
    * The currently authenticated user.
    */
   viewer: GetRepositoriesOfCurrentUser_viewer;
+}
+
+export interface GetRepositoriesOfCurrentUserVariables {
+  cursor?: string | null;
 }
