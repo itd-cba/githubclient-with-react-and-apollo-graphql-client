@@ -1,26 +1,25 @@
 import { QueryResult } from "@apollo/client";
 import React, { PropsWithChildren } from "react";
-import { OperationVariables } from "@apollo/client/core/types";
 import { FetchMoreOptions } from "@apollo/client/core/ObservableQuery";
 import "./style.css";
 import { ButtonUnobtrusive } from "../Button";
 import Loading from "../Loading";
 
-type Props<TData, TVariables> = {
+type Props = {
   hasNextPage: boolean;
-  variables: QueryResult<TData, TVariables>["variables"];
-  fetchMore: QueryResult<TData, TVariables>["fetchMore"];
-  updateQuery: FetchMoreOptions<TData, TVariables>["updateQuery"];
+  variables: QueryResult["variables"];
+  fetchMore: QueryResult["fetchMore"];
+  updateQuery: FetchMoreOptions["updateQuery"];
   loading: boolean;
 };
-function FetchMore<TData = any, TVars = OperationVariables>({
+function FetchMore({
   variables,
   updateQuery,
   fetchMore,
   children,
   loading,
   hasNextPage,
-}: PropsWithChildren<Props<TData, TVars>>) {
+}: PropsWithChildren<Props>) {
   return (
     <div className={"FetchMore"}>
       {loading ? (

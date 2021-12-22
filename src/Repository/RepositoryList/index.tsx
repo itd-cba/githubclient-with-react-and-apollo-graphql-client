@@ -1,8 +1,4 @@
-import {
-  GetRepositoriesOfCurrentUser,
-  GetRepositoriesOfCurrentUser_viewer_repositories,
-  GetRepositoriesOfCurrentUserVariables,
-} from "../../Profile/__generated__/GetRepositoriesOfCurrentUser";
+import { GetRepositoriesOfCurrentUser_viewer_repositories } from "../../Profile/__generated__/GetRepositoriesOfCurrentUser";
 import RepositoryItem from "../RepositoryItem";
 import "../style.css";
 import { QueryResult } from "@apollo/client";
@@ -10,33 +6,36 @@ import FetchMore from "../../FetchMore";
 
 type Props = {
   repositories: GetRepositoriesOfCurrentUser_viewer_repositories;
-  fetchMore: QueryResult<
-    GetRepositoriesOfCurrentUser,
-    GetRepositoriesOfCurrentUserVariables
-  >["fetchMore"];
+  fetchMore: QueryResult["fetchMore"];
   loading: boolean;
+  entry: "organization" | "viewer";
 };
-const updateQuery = (previousResult: any, { fetchMoreResult }: any) => {
-  if (!fetchMoreResult) return previousResult;
-  return {
-    ...previousResult,
-    viewer: {
-      ...previousResult.viewer,
-      repositories: {
-        ...previousResult.viewer.repositories,
-        ...fetchMoreResult.viewer.repositories,
-        edges: [
-          ...previousResult.viewer.repositories.edges,
-          ...fetchMoreResult.viewer.repositories.edges,
-        ],
+
+const getUpdateQuery =
+  (entry: Props["entry"]) =>
+  (previousResult: any, { fetchMoreResult }: any) => {
+    if (!fetchMoreResult) return previousResult;
+    return {
+      ...previousResult,
+      [entry]: {
+        ...previousResult[entry],
+        repositories: {
+          ...previousResult[entry].repositories,
+          ...fetchMoreResult[entry].repositories,
+          edges: [
+            ...previousResult[entry].repositories.edges,
+            ...fetchMoreResult[entry].repositories.edges,
+          ],
+        },
       },
-    },
+    };
   };
-};
+
 const RepositoryList = ({
   repositories,
   fetchMore,
   loading,
+  entry,
 }: Props): JSX.Element => {
   return (
     <>
@@ -45,13 +44,10 @@ const RepositoryList = ({
           <RepositoryItem {...edge?.node!} />
         </div>
       ))}
-      <FetchMore<
-        GetRepositoriesOfCurrentUser,
-        GetRepositoriesOfCurrentUserVariables
-      >
+      <FetchMore
         variables={{ cursor: repositories.pageInfo.endCursor }}
         fetchMore={fetchMore}
-        updateQuery={updateQuery}
+        updateQuery={getUpdateQuery(entry)}
         loading={loading}
         hasNextPage={repositories.pageInfo.hasNextPage}
       >

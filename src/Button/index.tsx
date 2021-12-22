@@ -1,10 +1,10 @@
 import "./style.css";
 import React from "react";
 type Props = {
-  className: string;
+  className?: string;
   color?: string;
   type?: "submit" | "reset" | "button";
-  onClick: () => void;
+  onClick?: () => void;
 };
 const Button: React.FC<Props> = ({
   children,

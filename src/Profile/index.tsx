@@ -43,6 +43,7 @@ const Profile = () => {
   if (viewer)
     return (
       <RepositoryList
+        entry={"viewer"}
         loading={loading}
         repositories={viewer.repositories}
         fetchMore={fetchMore}

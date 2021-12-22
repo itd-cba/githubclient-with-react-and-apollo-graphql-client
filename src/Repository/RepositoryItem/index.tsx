@@ -1,15 +1,21 @@
 import Link from "../../Link";
-import {GetRepositoriesOfCurrentUser_viewer_repositories_edges_node} from "../../Profile/__generated__/GetRepositoriesOfCurrentUser";
+import { GetRepositoriesOfCurrentUser_viewer_repositories_edges_node } from "../../Profile/__generated__/GetRepositoriesOfCurrentUser";
 import "../style.css";
 import gql from "graphql-tag";
-import {ApolloCache, useMutation} from "@apollo/client";
-import {StarRepository, StarRepositoryVariables,} from "./__generated__/StarRepository";
+import { ApolloCache, useMutation } from "@apollo/client";
+import {
+  StarRepository,
+  StarRepositoryVariables,
+} from "./__generated__/StarRepository";
 import Button from "../../Button";
-import {UpdateSubscription, UpdateSubscriptionVariables,} from "./__generated__/UpdateSubscription";
-import {SubscriptionState} from "../../__generated__/globalTypes";
+import {
+  UpdateSubscription,
+  UpdateSubscriptionVariables,
+} from "./__generated__/UpdateSubscription";
+import { SubscriptionState } from "../../__generated__/globalTypes";
 import REPOSITORY_FRAGMENT from "../fragments";
-import {Repository} from "../__generated__/Repository";
-import {RemoveStarRepository} from "./__generated__/RemoveStarRepository";
+import { Repository } from "../__generated__/Repository";
+import { RemoveStarRepository } from "./__generated__/RemoveStarRepository";
 
 interface Props
   extends GetRepositoriesOfCurrentUser_viewer_repositories_edges_node {}
@@ -90,7 +96,10 @@ const updateWatchers = (
   mutationResult: UpdateSubscription,
   id: string
 ) => {
-  const cachedRepository = cache.readFragment<Repository,StarRepositoryVariables>({
+  const cachedRepository = cache.readFragment<
+    Repository,
+    StarRepositoryVariables
+  >({
     id: `Repository:${id}`,
     fragment: REPOSITORY_FRAGMENT,
   });
@@ -135,16 +144,16 @@ const RepositoryItem = ({
     update(cache, { data }) {
       if (data) updateStars(cache, data, id);
     },
-    optimisticResponse : {
-      addStar :{
+    optimisticResponse: {
+      addStar: {
         __typename: "AddStarPayload",
         starrable: {
           id,
           __typename: "Repository",
-          viewerHasStarred : true
-        }
-      }
-    }
+          viewerHasStarred: true,
+        },
+      },
+    },
   });
 
   const [removeStar] = useMutation<StarRepository, StarRepositoryVariables>(
@@ -154,16 +163,16 @@ const RepositoryItem = ({
       update(cache, { data }) {
         if (data) updateStars(cache, data, id);
       },
-      optimisticResponse : {
-        addStar :{
+      optimisticResponse: {
+        addStar: {
           __typename: "AddStarPayload",
           starrable: {
             id,
             __typename: "Repository",
-            viewerHasStarred : false
-          }
-        }
-      }
+            viewerHasStarred: false,
+          },
+        },
+      },
     }
   );
 
@@ -181,16 +190,19 @@ const RepositoryItem = ({
     update(cache, { data }) {
       if (data) updateWatchers(cache, data, id);
     },
-    optimisticResponse : {
-      updateSubscription : {
+    optimisticResponse: {
+      updateSubscription: {
         __typename: "UpdateSubscriptionPayload",
         subscribable: {
           id,
-          __typename:"Repository",
-          viewerSubscription: viewerSubscription === SubscriptionState.UNSUBSCRIBED ? SubscriptionState.SUBSCRIBED : SubscriptionState.UNSUBSCRIBED
-        }
-      }
-    }
+          __typename: "Repository",
+          viewerSubscription:
+            viewerSubscription === SubscriptionState.UNSUBSCRIBED
+              ? SubscriptionState.SUBSCRIBED
+              : SubscriptionState.UNSUBSCRIBED,
+        },
+      },
+    },
   });
 
   return (
@@ -210,15 +222,17 @@ const RepositoryItem = ({
               className={"RepositoryItem-title-action"}
               onClick={removeStar}
             >
-              {stargazers.totalCount} Stars
+              {stargazers.totalCount} Unstar
             </Button>
           )}
           <Button
             className={"RepositoryItem-title-action"}
             onClick={updateSubscription}
           >
-            {watchers.totalCount} {' '}
-            {viewerSubscription === SubscriptionState.UNSUBSCRIBED ? 'Watch' : 'Unwatch' }
+            {watchers.totalCount}{" "}
+            {viewerSubscription === SubscriptionState.UNSUBSCRIBED
+              ? "Watch"
+              : "Unwatch"}
           </Button>
         </div>
       </div>
