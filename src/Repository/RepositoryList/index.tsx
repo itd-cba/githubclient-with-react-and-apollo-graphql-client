@@ -3,6 +3,7 @@ import RepositoryItem from "../RepositoryItem";
 import "../style.css";
 import { QueryResult } from "@apollo/client";
 import FetchMore from "../../FetchMore";
+import Issues from "../../Issue";
 
 type Props = {
   repositories: GetRepositoriesOfCurrentUser_viewer_repositories;
@@ -42,6 +43,11 @@ const RepositoryList = ({
       {repositories.edges?.map((edge) => (
         <div key={edge?.node?.id} className={"RepositoryItem"}>
           <RepositoryItem {...edge?.node!} />
+
+          <Issues
+            repositoryName={edge?.node?.name!}
+            repositoryOwner={edge?.node?.owner.login!}
+          />
         </div>
       ))}
       <FetchMore

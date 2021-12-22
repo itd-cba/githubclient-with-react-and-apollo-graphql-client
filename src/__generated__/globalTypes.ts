@@ -8,6 +8,14 @@
 //==============================================================
 
 /**
+ * The possible states of an issue.
+ */
+export enum IssueState {
+  CLOSED = "CLOSED",
+  OPEN = "OPEN",
+}
+
+/**
  * The possible states of a subscription.
  */
 export enum SubscriptionState {
